@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from textwrap import dedent
 
 import nbformat as nbf
 
@@ -11,11 +12,11 @@ OUTPUT = ROOT / "data_workflow.ipynb"
 
 
 def md(source: str) -> nbf.NotebookNode:
-    return nbf.v4.new_markdown_cell(source.strip())
+    return nbf.v4.new_markdown_cell(dedent(source).strip())
 
 
 def code(source: str) -> nbf.NotebookNode:
-    return nbf.v4.new_code_cell(source.strip())
+    return nbf.v4.new_code_cell(dedent(source).strip())
 
 
 cells = [
@@ -290,6 +291,7 @@ cells = [
             alpha=0.35,
             ax=ax,
         )
+        sns.move_legend(ax, "upper right", title="Survival status")
         ax.set_title("Figure 2. Age Distribution by Survival Status")
         ax.set_xlabel("Age in years (group-median imputed where missing)")
         ax.set_ylabel("Density within survival group")
