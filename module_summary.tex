@@ -1,0 +1,236 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[margin=25mm]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+
+\graphicspath{{figures/}}
+\definecolor{rulegray}{HTML}{B8C0C8}
+
+\hypersetup{
+  pdftitle={AI Programming Foundations Project: Module Summary},
+  pdfauthor={Johannes Pawelczyk},
+  pdfsubject={Exploratory analysis of the Titanic training dataset as part of the Udacity MSc AI capstone project}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{AI Programming Foundations Project}
+\rhead{Module Summary}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{14pt}
+
+\captionsetup{font=small,labelfont=bf}
+\setlist{nosep,leftmargin=1.5em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\renewcommand{\arraystretch}{1.15}
+
+\newcommand{\reportsection}[1]{%
+  \section{#1}
+  \vspace{-0.4em}
+  \textcolor{rulegray}{\rule{\textwidth}{0.5pt}}
+  \vspace{0.2em}
+}
+
+\newcommand{\reportfigure}[2]{%
+  \IfFileExists{figures/#1}{%
+    \includegraphics[width=0.92\textwidth]{#1}%
+  }{%
+    \fbox{\parbox[c][52mm][c]{0.88\textwidth}{\centering\small #2}}%
+  }%
+}
+
+\title{\textbf{AI Programming Foundations Project}\\[0.4em]
+\large Exploratory analysis of the Titanic passenger dataset}
+\author{Johannes Pawelczyk}
+\date{28. September 2026}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\reportsection{Overview}
+
+For this project I used the recommended Titanic training data to build a small,
+reproducible analysis in Python. My main research question was how survival differed by
+passenger class, sex, age, and family size. I did not train a predictive model; the
+purpose was to demonstrate understanding of proper loading, cleaning, summarization,
+and plotting on a real dataset.
+
+The submission contains the full analysis. It reads the local CSV file using
+Pandas, applies the cleaning functions, produces grouped summaries, and creates
+the three figures included below. The repository also contains the source data,
+the generated figures, and pinned package versions, as well as brief instructions.
+
+\reportsection{Dataset Description}
+
+I used \emph{train.csv} from Kaggle's
+\href{https://www.kaggle.com/c/titanic/data}{Titanic: Machine Learning from
+Disaster} competition. It contains 891 passenger records and 12 columns.
+The outcome variable, \texttt{Survived}, is binary: 342 passengers are
+recorded as survivors and 549 as non-survivors. Thus, the overall recorded survival
+rate is 38.4\%.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{@{}p{0.28\textwidth}p{0.22\textwidth}p{0.40\textwidth}@{}}
+    \toprule
+    Check & Result & Treatment in the notebook \\
+    \midrule
+    Missing age & 177 rows (19.9\%) & Median within recorded sex and class; missingness flag retained \\
+    Missing cabin & 687 rows (77.1\%) & Raw value removed; cabin-known indicator retained \\
+    Missing embarkation port & 2 rows (0.2\%) & Filled with the modal port, S \\
+    Exact duplicate rows & 0 & Checked; no rows removed \\
+    \bottomrule
+  \end{tabular}
+  \caption{Data-quality checks performed prior to the analysis.}
+  \label{tab:quality}
+\end{table}
+
+Important note: The file is a historical passenger list, not a sample designed for
+statistical inference. The results below describe patterns in these records. They
+should not be interpreted as causal effects.
+
+\reportsection{Workflow Description}
+
+The notebook is broken up into six stages:
+
+\begin{enumerate}
+  \item Import required libraries and set display and plotting options.
+  \item Load CSV and inspect its rows, dimensions, data types, and missingness.
+  \item Clean column names/values, handle missing data, and create derived fields.
+  \item Calculate counts and survival rates for the groups used in the analysis.
+  \item Plot the main comparisons with titles, axis labels, and group sizes.
+  \item Record findings, assumptions, and limitations.
+\end{enumerate}
+
+Two functions perform the cleaning step. \texttt{normalize\_column\_names} converts
+the original headings to lower-case snake case. \texttt{clean\_titanic\_data}
+then handles duplicates, whitespace, missing ages, embarkation values, cabin
+availability, and the derived family-size fields. A third function,
+\texttt{summarize\_survival}, returns the passenger count, survivor count, and
+survival rate for any requested grouping.
+
+\reportsection{Key Decisions \& Assumptions}
+
+All 891 rows were kept, as dropping every incomplete row would discard most of the
+dataset because cabin is missing for 77.1\% of passengers. Instead, I replaced
+the raw cabin field with a \texttt{cabin\_known} indicator. This preserves the
+fact that a cabin was recorded without treating an incomplete cabin string as a
+reliable location.
+
+Age has less missingness but is still absent for 177 passengers. I imputed those
+values as the median for the passenger's recorded sex and class. Furthermore, the
+separate \texttt{age\_missing} flag distinguishes observed and imputed
+values. Finally, the two missing embarkation values were filled with the most common
+port.
+
+Family size is defined as \texttt{SibSp + Parch + 1}. This counts the passenger,
+their siblings/spouse, and their listed parents or children. It does not capture
+companions outside those relationships, so it is only a proxy for the actual travel
+group. The cleaned table otherwise follows a consistent structure, with each variable
+having its own column and each passenger having one row \cite{wickham2014}.
+
+\reportsection{Results \& Interpretation}
+
+The largest differences appear when survival is grouped by passenger class and sex.
+Female passengers have a higher survival rate in every class. The rate ranges from
+96.8\% for first-class women to 13.5\% for third-class men. Class still matters within
+each recorded sex category.
+
+\begin{figure}[H]
+  \centering
+  \reportfigure{figure_1_survival_by_class_and_sex.png}{Survival rate by passenger class and sex}
+  \caption{Recorded survival rate by passenger class and sex.}
+  \label{fig:class-sex}
+\end{figure}
+
+The age distributions overlap substantially. Both outcome groups have a raw
+median age of approximately 28 years, although the survivor distribution has a visible
+peak among children. Because 177 ages were filled before plotting, small local
+differences should be interpreted cautiously.
+
+\begin{figure}[H]
+  \centering
+  \reportfigure{figure_2_age_by_survival.png}{Age distribution by survival status}
+  \caption{Age distributions for recorded survivors and non-survivors.}
+  \label{fig:age}
+\end{figure}
+
+Passengers in family groups of two to four have higher recorded survival rates
+than passengers travelling alone. The relationship is not linear: the rate
+drops for groups of five or more. Several large-family categories contain very
+few passengers. For example, family sizes 8 and 11 contain only 6 and 7 records,
+so their rates are unstable and should not support broad conclusions.
+
+\begin{figure}[H]
+  \centering
+  \reportfigure{figure_3_survival_by_family_size.png}{Figure preview: survival rate by family size}
+  \caption{Recorded survival rate by derived family size; labels show group counts.}
+  \label{fig:family}
+\end{figure}
+
+\reportsection{Responsible Practice: Bias \& Data Quality}
+
+Cleaning choices can change the analysis results and conclusions. A
+complete-case approach would remove 19.9\% of rows because of age alone, while
+requiring cabin would remove 77.1\%. If missingness differs by class or recorded
+sex, those deletions would also change the comparisons. I therefore kept the
+rows, recorded missingness explicitly, and reported group counts next to rates.
+
+However, median imputation has its own limitations. It reduces variation
+and can reinforce the group structure used to calculate the median. A follow-up
+analysis should compare the current results with complete-case estimates and other
+imputation methods. The original categories also reflect the conventions and unequal
+social conditions of the time period. Any predictive use would need separate subgroup
+checks, a clear reason for using sensitive attributes, and safeguards against
+data leakage.
+
+\reportsection{Reproducibility}
+
+The notebook uses relative paths and runs from the repository root. All code
+cells have been executed without errors. Assertions check the row count, required
+columns, survival labels, filled age and embarkation values, and the range of the
+derived family-size field. Package versions are listed in \texttt{requirements.txt}
+and the README explains how to create the environment and rerun the notebook.
+
+The Git history separates the initial project structure, the executed analysis,
+and the report. The analysis was developed on a \texttt{development} branch and
+merged into \texttt{main}. Keeping the notebook, narrative, environment details,
+and source data together follows the reproducible teaching approach described by
+Danchev \cite{danchev2022}.
+
+\reportsection{Sources \& Citations}
+
+\begin{thebibliography}{9}
+
+\bibitem{danchev2022}
+Danchev, V. (2022). Reproducible data science with Python: An open learning
+resource. \emph{Journal of Open Source Education, 5}(56), 156.
+\url{https://doi.org/10.21105/jose.00156}
+
+\bibitem{kaggle}
+Kaggle. (n.d.). \emph{Titanic: Machine Learning from Disaster -- Data}.
+Retrieved 28 September 2026 from
+\url{https://www.kaggle.com/c/titanic/data}
+
+\bibitem{wickham2014}
+Wickham, H. (2014). Tidy data. \emph{Journal of Statistical Software, 59}(10),
+1--23. \url{https://doi.org/10.18637/jss.v059.i10}
+
+\end{thebibliography}
+
+\end{document}
