@@ -42,6 +42,18 @@ to `figures/`. Dependency versions were captured with `pip freeze` and reduced t
 packages used by this project. Git history records the project in separate scaffold,
 analysis, and reporting stages, with development performed on an additional branch.
 
+## Git Repository and Version-Control Evidence
+
+Public repository: [jpawelczyk/ai-programming-foundations-project](https://github.com/jpawelczyk/ai-programming-foundations-project)
+
+- Default branch: [`main`](https://github.com/jpawelczyk/ai-programming-foundations-project/tree/main), containing the complete submission.
+- Additional branch: [`development`](https://github.com/jpawelczyk/ai-programming-foundations-project/tree/development), used for the notebook analysis and report work before integration into `main`.
+- Commit history: [commits on `main`](https://github.com/jpawelczyk/ai-programming-foundations-project/commits/main), showing the project scaffold, analysis, reporting, and final revisions.
+- Branch list: [all repository branches](https://github.com/jpawelczyk/ai-programming-foundations-project/branches).
+
+The repository therefore exposes multiple incremental commits and an additional
+development branch beyond `main`, as required by the project rubric.
+
 ## Bias Awareness
 
 Dropping all incomplete records would disproportionately remove passengers with
@@ -72,4 +84,3 @@ An agent could automate schema checks, run the notebook, compare data-quality me
 with prior runs, and flag failed assertions. Human review should remain responsible for
 source selection, interpretation, citation accuracy, and decisions that could amplify
 historical bias.
-
